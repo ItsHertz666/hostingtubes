@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg
 import pandas as pd
 
 # Supabase PostgreSQL connection (simple, fill your details below)
@@ -24,7 +24,7 @@ DSN = SUPABASE_URL
 # - Method B: Uncomment the next line to build DSN from discrete fields
 # DSN = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
 
-conn = psycopg2.connect(DSN)
+conn = psycopg.connect(DSN)
 
 
 def get_df(query, params=None):
