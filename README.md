@@ -1,6 +1,40 @@
-# VLE Dashboard Data Access (config.py)
+# VLE Dashboard (app.py + config.py)
 
-This document summarizes each data function in `config.py`, the tables it reads, and the SQL JOINs used. It helps understand where fields come from and how entities relate.
+This README explains how the Streamlit app (`app.py`) works, how the database connection is configured in `config.py`, and documents each data-access function.
+
+## Quick Start
+- Install deps: `pip install -r visualisasi/requirements.txt`
+- Run app (Windows PowerShell):
+  ```powershell
+  streamlit run visualisasi/app.py
+  ```
+
+## Database Connection (Supabase)
+- `config.py` uses a single PostgreSQL DSN string compatible with Supabase Session Pooler.
+- Recommended DSN format (replace placeholders):
+  `postgresql://<USER>:<PASSWORD>@aws-1-<region>.pooler.supabase.com:5432/<DBNAME>?sslmode=require`
+- For Supabase default values:
+  - User: `postgres.<PROJECT_REF>` (when using Session Pooler) or `postgres`
+  - DB: `postgres`
+  - Host: `aws-1-<region>.pooler.supabase.com`
+  - Always include `?sslmode=require`
+- Keep credentials out of code in production:
+  - Streamlit Cloud: put DSN in `st.secrets["db"]["url"]`
+  - Local dev: set `DATABASE_URL` env var
+
+## App Structure (app.py)
+- Global filters in sidebar: Semester and Instructor. These filters affect all relevant charts.
+- Pages:
+  - Overview: totals (students, classes, modules, instructors), distributions by region/gender, students per module/semester/instructor, age histogram, engagement KPIs.
+  - Classes: pick a presentation, see enrolled students, assessment score distribution, final score histogram, final result pie, VLE activity timeline, assessment weight donut, completion stacked bar, score vs weight scatter, and a per-student assessment status grid.
+  - Students: profile card (age, gender, region, education, DOB), enrollments table, VLE activity timeline + engagement metrics, assessment score and weight bars.
+  - Analytics: clicks vs final score scatter + correlation, boxplots by gender/region, enrollment vs withdrawn trend per semester, assessment weight distribution per class.
+  - Instructors: instructor classes table, KPIs (class count, average score, pass-rate), comparison bar (avg score + pass rate per class).
+
+---
+## VLE Dashboard Data Access (config.py)
+
+This section summarizes each data function in `config.py`, the tables it reads, and the SQL JOINs used. It helps understand where fields come from and how entities relate.
 
 ## Connection
 - Uses `psycopg2` to connect to PostgreSQL.
