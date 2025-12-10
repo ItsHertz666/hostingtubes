@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import psycopg
 import pandas as pd
 try:
@@ -28,6 +29,8 @@ PORT = 5432
 DSN = SUPABASE_URL
 # - Method B: Uncomment the next line to build DSN from discrete fields
 # DSN = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+
+load_dotenv()
 
 DB_URL = (
   os.environ.get("DATABASE_URL")

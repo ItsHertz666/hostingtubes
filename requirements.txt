@@ -1,4 +1,4 @@
-streamlit==1.52.1
-psycopg[binary]==3.2.1
-pandas==2.3.3
-python-dotenv==1.2.1
+streamlit
+psycopg3
+pandas
+python-dotenv
