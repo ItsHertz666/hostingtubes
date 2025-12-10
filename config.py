@@ -1,42 +1,56 @@
 import psycopg2
 import pandas as pd
 
-# Konfigurasi koneksi — ganti sesuai setup Anda
-conn = psycopg2.connect(
-    host="localhost",
-    port="5432",
-    user="postgres",
-    password="postgres",
-    dbname="tubes"
-)
+# Supabase PostgreSQL connection (simple, fill your details below)
+# 1) Preferred: use a single connection URL from Supabase
+#    Format: postgresql://USER:PASSWORD@db.PROJECT_REF.supabase.co:5432/DBNAME?sslmode=require
+#    Example (replace placeholders):
+#    SUPABASE_URL = "postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT_REF.supabase.co:5432/postgres?sslmode=require"
+# 2) Alternatively, fill discrete fields if you prefer
+
+SUPABASE_URL = "postgresql://postgres.gcrmlostvsabskddleip:4th4l4r0m3R02005@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require"
+
+# If you prefer discrete fields, set them here and build the URL:
+USER = "postgres"            # Supabase DB user (default 'postgres')
+PASSWORD = "4th4l4r0m3R02005"   # Supabase DB password you set
+PROJECT_REF = "gcrmlostvsabskddleip"  # Supabase project ref (from dashboard)
+DBNAME = "postgres"          # Supabase DB name (default 'postgres')
+HOST = "aws-1-ap-south-1.pooler.supabase.com"
+PORT = 5432
+
+# Choose ONE of the following connection methods:
+# - Method A: Use SUPABASE_URL directly
+DSN = SUPABASE_URL
+# - Method B: Uncomment the next line to build DSN from discrete fields
+# DSN = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+
+conn = psycopg2.connect(DSN)
+
 
 def get_df(query, params=None):
-    """
-    Eksekusi SQL query dan return hasil sebagai pandas DataFrame
-    """
     df = pd.read_sql_query(query, conn, params=params)
     return df
 
-# Contoh query dasar:
 
 def fetch_students():
-  query = """
-  SELECT user_id AS student_id, name, gender, region, highest_education, date_of_birth
-  FROM user_account
-  WHERE role = 'student'
-  ORDER BY name;
-  """
-  return get_df(query)
+    query = """
+    SELECT user_id AS student_id, name, gender, region, highest_education, date_of_birth
+    FROM user_account
+    WHERE role = 'student'
+    ORDER BY name;
+    """
+    return get_df(query)
 
 
 def fetch_instructors():
-  query = """
-  SELECT user_id AS instructor_id, name, department
-  FROM user_account
-  WHERE role = 'instructor'
-  ORDER BY name;
-  """
-  return get_df(query)
+    query = """
+    SELECT user_id AS instructor_id, name, department
+    FROM user_account
+    WHERE role = 'instructor'
+    ORDER BY name;
+    """
+    return get_df(query)
+
 
 def fetch_presentations():
     query = """
@@ -51,6 +65,7 @@ def fetch_presentations():
     """
     return get_df(query)
 
+
 def fetch_enrollment(presentation_id):
     query = """
     SELECT e.enrollment_id, e.presentation_id, s.user_id AS student_id, s.name,
@@ -62,14 +77,16 @@ def fetch_enrollment(presentation_id):
     """
     return get_df(query, params=(presentation_id,))
 
+
 def fetch_assessments(presentation_id):
-  query = """
-  SELECT a.assessment_id, a.assessment_name, a.weight
-  FROM assessment a
-  WHERE a.presentation_id = %s
-  ORDER BY a.assessment_id;
-  """
-  return get_df(query, params=(presentation_id,))
+    query = """
+    SELECT a.assessment_id, a.assessment_name, a.weight
+    FROM assessment a
+    WHERE a.presentation_id = %s
+    ORDER BY a.assessment_id;
+    """
+    return get_df(query, params=(presentation_id,))
+
 
 def fetch_student_scores(enrollment_id):
     query = """
@@ -79,6 +96,7 @@ def fetch_student_scores(enrollment_id):
     WHERE sa.enrollment_id = %s;
     """
     return get_df(query, params=(enrollment_id,))
+
 
 def fetch_vle_activity(enrollment_id):
     query = """
@@ -90,19 +108,17 @@ def fetch_vle_activity(enrollment_id):
     """
     return get_df(query, params=(enrollment_id,))
 
-# ===== Tambahan helper untuk analitik =====
 
 def fetch_enrollments_all():
     query = """
     SELECT e.enrollment_id, e.presentation_id, e.student_id,
-      e.final_result, e.studied_credits
+           e.final_result, e.studied_credits
     FROM enrollment e;
     """
     return get_df(query)
 
 
 def fetch_final_scores_all(presentation_id=None):
-    """Hitung skor akhir (weighted) per enrollment: SUM(score*weight)/SUM(weight)."""
     params = tuple()
     where = ""
     if presentation_id is not None:
