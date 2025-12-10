@@ -42,6 +42,14 @@ def get_df(query, params=None):
     df = pd.read_sql_query(query, conn, params=params)
     return df
 
+def ping_db():
+  try:
+    with conn.cursor() as cur:
+      cur.execute("SELECT 1")
+      return True
+  except Exception:
+    return False
+
 
 def fetch_students():
     query = """

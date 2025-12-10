@@ -17,11 +17,18 @@ from config import (
     fetch_vle_avg_timeline_by_presentation,
     fetch_assessment_scores_by_enrollment,
     fetch_students_by_module_counts,
+    ping_db,
 )
 
 st.set_page_config(page_title="VLE Dashboard", layout="wide")
 
 st.title("📘 VLE Dashboard")
+try:
+    ok = ping_db()
+    if not ok:
+        st.warning("Database not reachable. Check secrets `DATABASE_URL` or `[db].url`.")
+except Exception as e:
+    st.error(f"DB init error: {e}")
 
 """
 I'll simplify and fix the dark styling to ensure readability.
