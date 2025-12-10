@@ -1,5 +1,10 @@
+import os
 import psycopg
 import pandas as pd
+try:
+  import streamlit as st
+except Exception:  # streamlit not always present at import time
+  st = None
 
 # Supabase PostgreSQL connection (simple, fill your details below)
 # 1) Preferred: use a single connection URL from Supabase
@@ -24,7 +29,13 @@ DSN = SUPABASE_URL
 # - Method B: Uncomment the next line to build DSN from discrete fields
 # DSN = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
 
-conn = psycopg.connect(DSN)
+DB_URL = (
+  os.environ.get("DATABASE_URL")
+  or (st.secrets.get("db", {}).get("url") if st and hasattr(st, "secrets") else None)
+  or DSN
+)
+
+conn = psycopg.connect(DB_URL)
 
 
 def get_df(query, params=None):
